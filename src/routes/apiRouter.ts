@@ -2,9 +2,11 @@
 // 1. Validate the received data
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { isDataView } from 'util/types';
-import { saveSubscription, deleteSubscription, getSubscription } from "../db";
+import { saveSubscription, deleteSubscription, getSubscription, getSubscriptions } from "../db";
 import logger from '../logger';
+import { Subscription } from 'src/types';
+import config from '../config';
+const { MAX_SUBS } = config;
 
 const router = Router();
 
@@ -34,9 +36,18 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
             // We need to consider if we want the save operations to be a transaction
             //  - if one of the save operations fail, all previous one will be rolled back?
 
+            const existingSubs = await getSubscriptions(id);
+            if ( existingSubs && existingSubs.list.length >= MAX_SUBS ) {
+                // To remove the oldest Subscription (based on lastCheckIn)
+                // 1. sort the subscriptions in ascending order based on lastCheckIn timestamp
+                // 2. delete the first subscription from the database
+                existingSubs.list.sort((a: Subscription,b: Subscription) => a.lastCheckIn - b.lastCheckIn);
+                await deleteSubscription(id, existingSubs.list[0].clientAppId);
+            }
             const isSaved = await saveSubscription(id, newSubscription);
             // isSaved true - new subscription is added
             // isSaved false - subscription already exists
+
         });
     } catch (error) {
         // cannot save new subscription due to error
