@@ -3,6 +3,7 @@ import { PushSubscription } from "web-push";
 export interface Subscription {
     clientAppId: string,
     pushSubObj: PushSubscription,
+    lastCheckIn: number, //timestamp
 }
 
 export interface Subscriptions {

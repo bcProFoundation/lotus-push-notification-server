@@ -2,14 +2,15 @@
 // 1. Validate the received data
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { saveSubscription, deleteSubscription } from "../db";
+import { isDataView } from 'util/types';
+import { saveSubscription, deleteSubscription, getSubscription } from "../db";
 import logger from '../logger';
 
 const router = Router();
 
 
 router.post('/subscribe', async (req: Request, res: Response, next: NextFunction) => {
-    // 1. Extract the Wallet Address / Hashes, App ID, PushSubscription Object from the request body
+    // 1. Extract the Wallet Addresses / Hashes, App ID, PushSubscription Object from the request body
     // 2. Validate the provided data and other conditions (no duplication, max number of subscription for one address, etc)
     // 3. Save the data to the database
     // 4. Send a Successful Push message
@@ -19,7 +20,8 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
         pushSubObj: {
             endpoint: pushSubscription.endpoint,
             keys: pushSubscription.keys
-        }
+        },
+        lastCheckIn: Date.now(),
     }
 
     let success = true;
@@ -75,6 +77,35 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
         res.status(500).json({
             success,
             error: "Server Error: cannot delete subscription"
+        })
+    }
+})
+
+router.post('/checkin', async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Get for subscription assiciated with {id, clientAppId}
+    // 2. Update the lastCheckIn timestamp
+    // 3. Save the subscription back to the database (overwrite the existing one)
+    // 4. Respond with success or failure
+    const { ids, clientAppId } = req.body;
+    let success = true;
+    try {
+        ids.forEach( async (id: string) => {
+            const sub = await getSubscription(id, clientAppId);
+            sub.lastCheckIn = Date.now();
+            const isSaved = await saveSubscription(id, sub);
+
+        })
+    } catch (error) {
+        logger.log('error', 'Error in updating lastCheckIn timestamp', error);
+        success = false;
+    }
+
+    if ( success ) {
+        res.status(200).json({success});
+    } else {
+        res.status(500).json({
+            success,
+            error: 'Error while checking in'
         })
     }
 })
