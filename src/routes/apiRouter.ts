@@ -3,6 +3,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { saveSubscription, deleteSubscription } from "../db";
+import logger from '../logger';
 
 const router = Router();
 
@@ -37,7 +38,7 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
         });
     } catch (error) {
         // cannot save new subscription due to error
-        console.log(error);
+        logger.log('error', 'Cannot save subscription', error);
         success = false;
     }
 
@@ -64,6 +65,7 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
             const sub = await deleteSubscription(id,clientAppId);
         });
     } catch (error) {
+        logger.log('error', 'Cannot delete subscription', error);
         success = false;
     }
 

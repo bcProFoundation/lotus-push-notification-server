@@ -3,16 +3,18 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { getSubscriptions } from '../db';
+import logger from '../logger';
 
 const router = Router();
 
 router.get('/subscription/all', async (req: Request, res: Response, next: NextFunction) => {
     try {
         // return all the subscription data in the database
-    } catch (err: any) {
+    } catch (error: any) {
+        logger.log('error', 'Cannot retrieve subscriptions from db', error);
         res.status(500).json({
             success: false,
-            error: err.message
+            error: error.message
         })
     }
 });
@@ -34,6 +36,7 @@ router.get('/subscription/:id', async (req: Request, res: Response, next: NextFu
             });
         }
     } catch ( error ) {
+        logger.log('error', 'Cannot retreive subscription from db', error);
         res.status(500).json({
             success: false,
             error: "Server Error: cannot retrieve subscription data"

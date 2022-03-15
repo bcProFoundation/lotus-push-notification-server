@@ -6,6 +6,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { getSubscriptions } from '../db';
 import { sendPushMessage } from '../utils/sendPushMessage';
 import { Subscription } from '../types';
+import logger from '../logger';
 
 const router = Router();
 
@@ -21,8 +22,7 @@ router.post('/send', async (req: Request, res: Response, next: NextFunction) => 
             try {
                 sendPushMessage(id, sub, msg)
             } catch (error) {
-                //TODO log the error
-                console.log(error);
+                logger.log('error', 'Cannot send PushMessage', error);
             }
         });
     }

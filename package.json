@@ -20,6 +20,8 @@
     "level": "^7.0.1",
     "subleveldown": "^6.0.1",
     "web-push": "^3.4.5",
+    "winston": "^3.6.0",
+    "winston-daily-rotate-file": "^4.6.1",
     "zeromq": "^5.2.8"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@types/node": "^17.0.21",
     "@types/subleveldown": "^4.1.1",
     "@types/web-push": "^3.3.2",
+    "@types/winston": "^2.4.4",
     "@types/zeromq": "^5.2.1",
     "node-ts": "^5.1.2",
     "nodemon": "^2.0.15",

@@ -17,6 +17,8 @@ import { getSubscriptions } from './db';
 import { MessageType, Subscription, Subscriptions } from './types';
 import { sendPushMessage } from './utils/sendPushMessage';
 
+import logger from './logger';
+
 const { PORT, LOTUSD_ZMQ_URL } = config;
 
 const app = express();
@@ -36,7 +38,7 @@ app.use('/dev', devRouter);
 app.use('/admin', adminRouter);
 
 app.listen(PORT,() => {
-    console.log(`server is listening on port ${PORT}`);
+    logger.log('info', `server is listening on port ${PORT}`);
 
     // subscribe to lotusd with zmq
     const sock = zmq.socket('sub');
@@ -103,8 +105,7 @@ const onNewTx = (rawTxData: Buffer) => {
                         // So that the confirmation of the same TX will not trigger another Push Message
                         sentTX[txHash] = true;
                     } catch (error) {
-                        // TODO: log the error
-                        console.log('Error in onNewTx() ', error);
+                        logger.log('error', 'Error in onNewTx()', error);
                     }
                 })
             }
