@@ -80,9 +80,9 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
     let success = true;
     try {
         ids.forEach( async (id: string) => {
-            logger.debug('debug','Unscubscribing', {id, clientAppId});
+            logger.log('debug','Unscubscribing', {id, clientAppId});
             const sub = await deleteSubscription(id,clientAppId);
-            logger.debug('UBSUBSCRIBE OK');
+            logger.log('debug','UNSUBSCRIBE OK', {id,clientAppId });
         });
     } catch (error) {
         logger.log('error', 'Cannot delete subscription', error);
