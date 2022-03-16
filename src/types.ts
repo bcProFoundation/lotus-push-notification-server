@@ -12,6 +12,7 @@ export interface Subscriptions {
 }
 
 export interface Message {
+    clientAppId?: string,
     type: MessageType,
     payload: MessageTX | string
 }

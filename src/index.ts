@@ -90,6 +90,7 @@ const onNewTx = (rawTxData: Buffer) => {
                     try {
                         const amount = output.value / 1000000;
                         const msg = {
+                            clientAppId: sub.clientAppId,
                             type: MessageType.tx, 
                             payload: {
                                 amount: output.value,
