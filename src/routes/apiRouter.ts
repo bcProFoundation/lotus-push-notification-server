@@ -110,9 +110,13 @@ router.post('/checkin', async (req: Request, res: Response, next: NextFunction) 
         ids.forEach( async (id: string) => {
             logger.log('debug','checking in', {id, clientAppId});
             const sub = await getSubscription(id, clientAppId);
-            sub.lastCheckIn = Date.now();
-            const isSaved = await saveSubscription(id, sub);
-            logger.log('debug', 'CHECKIN OK');
+            if (sub) {
+                sub.lastCheckIn = Date.now();
+                const isSaved = await saveSubscription(id, sub);
+                logger.log('debug', 'CHECKIN OK', {id, sub});
+            } else {
+                logger.log('debug', 'Cannot find subscription', {id, clientAppId});
+            }
 
         })
     } catch (error) {

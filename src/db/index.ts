@@ -67,7 +67,7 @@ const saveSubscription = async (id: string, newSub: Subscription) => {
 
         } else {
             // already exists, replace the PushSubscription Obj
-            console.log(existingSubs);
+            existingSubs.list[foundIndex] = newSub;
         }
         await subDB.put(id, existingSubs);
     }
