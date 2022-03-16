@@ -2,14 +2,17 @@
 // 1. Validate the received data
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { saveSubscription, deleteSubscription } from "../db";
+import { saveSubscription, deleteSubscription, getSubscription, getSubscriptions } from "../db";
 import logger from '../logger';
+import { Subscription } from 'src/types';
+import config from '../config';
+const { MAX_SUBS } = config;
 
 const router = Router();
 
 
 router.post('/subscribe', async (req: Request, res: Response, next: NextFunction) => {
-    // 1. Extract the Wallet Address / Hashes, App ID, PushSubscription Object from the request body
+    // 1. Extract the Wallet Addresses / Hashes, App ID, PushSubscription Object from the request body
     // 2. Validate the provided data and other conditions (no duplication, max number of subscription for one address, etc)
     // 3. Save the data to the database
     // 4. Send a Successful Push message
@@ -19,12 +22,14 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
         pushSubObj: {
             endpoint: pushSubscription.endpoint,
             keys: pushSubscription.keys
-        }
+        },
+        lastCheckIn: Date.now(),
     }
 
     let success = true;
     try {
         ids.forEach(async (id: string) => {
+            logger.log('debug','Subscribing',{id, clientAppId})
             // TODO: decision point
             // The code below attempts to save data by making multiple database calls one at a time
             // If error occurs at one of them, a fail status will be returned to the client
@@ -32,9 +37,22 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
             // We need to consider if we want the save operations to be a transaction
             //  - if one of the save operations fail, all previous one will be rolled back?
 
+            const existingSubs = await getSubscriptions(id);
+            if ( existingSubs && existingSubs.list.length >= MAX_SUBS ) {
+                logger.log('debug',`exceeding MAX ${MAX_SUBS} SUBSCRIPTIONS`);
+                // To remove the oldest Subscription (based on lastCheckIn)
+                // 1. sort the subscriptions in ascending order based on lastCheckIn timestamp
+                // 2. delete the first subscription from the database
+                existingSubs.list.sort((a: Subscription,b: Subscription) => a.lastCheckIn - b.lastCheckIn);
+                logger.log('debug','deleting the oldest subscription', {id, clientAppId: existingSubs.list[0].clientAppId});
+                await deleteSubscription(id, existingSubs.list[0].clientAppId);
+                logger.log('debug','DELETE OK', {id, clientAppId: existingSubs.list[0].clientAppId});
+            }
             const isSaved = await saveSubscription(id, newSubscription);
             // isSaved true - new subscription is added
             // isSaved false - subscription already exists
+            logger.log('debug','SUBSCRIBE OK',{id, clientAppId});
+
         });
     } catch (error) {
         // cannot save new subscription due to error
@@ -62,7 +80,9 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
     let success = true;
     try {
         ids.forEach( async (id: string) => {
+            logger.debug('debug','Unscubscribing', {id, clientAppId});
             const sub = await deleteSubscription(id,clientAppId);
+            logger.debug('UBSUBSCRIBE OK');
         });
     } catch (error) {
         logger.log('error', 'Cannot delete subscription', error);
@@ -75,6 +95,41 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
         res.status(500).json({
             success,
             error: "Server Error: cannot delete subscription"
+        })
+    }
+})
+
+router.post('/checkin', async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Get for subscription assiciated with {id, clientAppId}
+    // 2. Update the lastCheckIn timestamp
+    // 3. Save the subscription back to the database (overwrite the existing one)
+    // 4. Respond with success or failure
+    const { ids, clientAppId } = req.body;
+    let success = true;
+    try {
+        ids.forEach( async (id: string) => {
+            logger.log('debug','checking in', {id, clientAppId});
+            const sub = await getSubscription(id, clientAppId);
+            if (sub) {
+                sub.lastCheckIn = Date.now();
+                const isSaved = await saveSubscription(id, sub);
+                logger.log('debug', 'CHECKIN OK', {id, sub});
+            } else {
+                logger.log('debug', 'Cannot find subscription', {id, clientAppId});
+            }
+
+        })
+    } catch (error) {
+        logger.log('error', 'Error in updating lastCheckIn timestamp', error);
+        success = false;
+    }
+
+    if ( success ) {
+        res.status(200).json({success});
+    } else {
+        res.status(500).json({
+            success,
+            error: 'Error while checking in'
         })
     }
 })

@@ -8,5 +8,6 @@ export default {
     VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || '',
     LOTUSD_ZMQ_URL: process.env.LOTUSD_ZMQ_URL || '',
     DEBUG: process.env.DEBUG === 'true' ? true : false,
-    LOGGING_DIR: process.env.LOGGING_DIR || "./logs"
+    LOGGING_DIR: process.env.LOGGING_DIR || "./logs",
+    MAX_SUBS: 5
 }
