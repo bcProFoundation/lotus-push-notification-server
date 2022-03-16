@@ -29,6 +29,7 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
     let success = true;
     try {
         ids.forEach(async (id: string) => {
+            logger.log('debug','Subscribing',{id, clientAppId})
             // TODO: decision point
             // The code below attempts to save data by making multiple database calls one at a time
             // If error occurs at one of them, a fail status will be returned to the client
@@ -38,15 +39,19 @@ router.post('/subscribe', async (req: Request, res: Response, next: NextFunction
 
             const existingSubs = await getSubscriptions(id);
             if ( existingSubs && existingSubs.list.length >= MAX_SUBS ) {
+                logger.log('debug',`exceeding MAX ${MAX_SUBS} SUBSCRIPTIONS`);
                 // To remove the oldest Subscription (based on lastCheckIn)
                 // 1. sort the subscriptions in ascending order based on lastCheckIn timestamp
                 // 2. delete the first subscription from the database
                 existingSubs.list.sort((a: Subscription,b: Subscription) => a.lastCheckIn - b.lastCheckIn);
+                logger.log('debug','deleting the oldest subscription', {id, clientAppId: existingSubs.list[0].clientAppId});
                 await deleteSubscription(id, existingSubs.list[0].clientAppId);
+                logger.log('debug','DELETE OK', {id, clientAppId: existingSubs.list[0].clientAppId});
             }
             const isSaved = await saveSubscription(id, newSubscription);
             // isSaved true - new subscription is added
             // isSaved false - subscription already exists
+            logger.log('debug','SUBSCRIBE OK',{id, clientAppId});
 
         });
     } catch (error) {
@@ -75,7 +80,9 @@ router.post('/unsubscribe', async (req: Request, res: Response, next: NextFuncti
     let success = true;
     try {
         ids.forEach( async (id: string) => {
+            logger.debug('debug','Unscubscribing', {id, clientAppId});
             const sub = await deleteSubscription(id,clientAppId);
+            logger.debug('UBSUBSCRIBE OK');
         });
     } catch (error) {
         logger.log('error', 'Cannot delete subscription', error);
@@ -101,9 +108,11 @@ router.post('/checkin', async (req: Request, res: Response, next: NextFunction) 
     let success = true;
     try {
         ids.forEach( async (id: string) => {
+            logger.log('debug','checking in', {id, clientAppId});
             const sub = await getSubscription(id, clientAppId);
             sub.lastCheckIn = Date.now();
             const isSaved = await saveSubscription(id, sub);
+            logger.log('debug', 'CHECKIN OK');
 
         })
     } catch (error) {
