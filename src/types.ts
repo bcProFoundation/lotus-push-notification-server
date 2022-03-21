@@ -19,8 +19,8 @@ export interface Message {
 
 export interface MessageTX {
     amount: Number,
-    fromAddress: string,
-    toAddress: string
+    fromAddress: string | null | undefined,
+    toAddress: string | null | undefined
 }
 
 export enum MessageType {
