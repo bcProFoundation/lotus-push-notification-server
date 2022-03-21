@@ -19,8 +19,8 @@ export interface Message {
 
 export interface MessageTX {
     amount: Number,
-    fromScriptHash: string,
-    toScriptHash: string
+    fromAddress: string | null | undefined,
+    toAddress: string | null | undefined
 }
 
 export enum MessageType {
