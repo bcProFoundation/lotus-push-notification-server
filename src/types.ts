@@ -20,7 +20,8 @@ export interface Message {
 export interface MessageTX {
     amount: Number,
     fromAddress: string | null | undefined,
-    toAddress: string | null | undefined
+    toAddress: string | null | undefined,
+    opReturnOutput: string | null | undefined,
 }
 
 export enum MessageType {
