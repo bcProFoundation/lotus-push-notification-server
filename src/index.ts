@@ -101,10 +101,15 @@ const onNewTx = async (txHashBuf: Buffer) => {
                 inputAddress = inputAddressObj.toString();
                 logger.log('debug','Input Address', {inputAddress});
             }
+
+            let opReturnOutput: string | null | undefined = null;
             // loop thru the outputs and send Push Message
             tx.outputs.forEach(async (output: TxOutput) => {
                 const { value, outputScript } = output;
-                if ( outputScript.substring(0,2) === OP_RETURN ) return;
+                if ( outputScript.substring(0,2) === OP_RETURN ) {
+                    opReturnOutput = outputScript;
+                    return;
+                } 
                 
                 // compute the output address
                 const outputAddressObj = new XAddress(XAddressType.ScriptPubKey, NetworkType.MAIN, Buffer.from(outputScript, 'hex'), 'lotus');
@@ -125,7 +130,8 @@ const onNewTx = async (txHashBuf: Buffer) => {
                                         amount: value.toNumber(),
                                         toAddress: outputAddress,
                                         // a null fromAddress indicates this is a coinbase tx
-                                        fromAddress: inputAddress
+                                        fromAddress: inputAddress,
+                                        opReturnOutput,
                                     }
                                 }
                                 sendPushMessage(outputAddress,sub,msg);
