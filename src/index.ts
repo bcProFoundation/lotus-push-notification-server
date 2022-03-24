@@ -17,7 +17,7 @@ import adminRouter from './routes/adminRouter';
 
 import { getSubscriptions } from './db';
 import { MessageType, Subscription, Subscriptions } from './types';
-import { sendPushMessage } from './utils/sendPushMessage';
+import { sendPushMessage } from './lib/sendPushMessage';
 
 import logger from './logger';
 

@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { getSubscriptions } from '../db';
-import { sendPushMessage } from '../utils/sendPushMessage';
+import { sendPushMessage } from '../lib/sendPushMessage';
 import { Subscription } from '../types';
 import logger from '../logger';
 
