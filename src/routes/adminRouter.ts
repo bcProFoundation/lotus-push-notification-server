@@ -11,14 +11,12 @@ import logger from '../logger';
 
 const router = Router();
 
-// default Admin route
+// Admin Home route
 // render a login form if not authenticated
+// render Not Authorized Message and logout button if not authorized
+// render the send Push Notification Message form if authenticated and authorized
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
-    // if is NOT authenticated
-    //  show login form
-    // if is authenticated but not admin
-    //
-
+    res.render('admin/index', { user: req.user});
 })
 
 // login for admin

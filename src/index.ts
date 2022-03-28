@@ -30,6 +30,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname,'public')));
 
+// use EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname,'views'));
 
 // configure session
 // https://github.com/expressjs/session#readme
@@ -50,8 +53,10 @@ app.use(
     })
 );
 
+// configure passport for user authentication
 import './config/passport';
 app.use(passport.initialize());
+app.use(passport.session());
 
 // routers
 app.use('/', indexRouter);
