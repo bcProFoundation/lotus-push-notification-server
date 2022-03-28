@@ -1,8 +1,13 @@
+import zmq from 'zeromq';
+
 import path from 'path';
 import express, { Request, Response, NextFunction} from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import zmq from 'zeromq';
+
+import session from 'express-session';
+const MemoryStore = require('memorystore')(session);
+import passport from "passport";
 
 import logger from './logger';
 import config from './config';
@@ -13,7 +18,7 @@ import apiRouter from './routes/apiRouter';
 import devRouter from './routes/devRouter';
 import adminRouter from './routes/adminRouter';
 
-const { PORT, LOTUSD_ZMQ_URL } = config;
+const { PORT, LOTUSD_ZMQ_URL, SESSION_SECRET } = config;
 
 const app = express();
 
@@ -24,6 +29,29 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname,'public')));
+
+
+// configure session
+// https://github.com/expressjs/session#readme
+app.use(
+    session({
+        name: 'sessionId',
+        secret: SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+        // https://github.com/roccomuso/memorystore#readme
+        store: new MemoryStore({
+            checkPeriod: 1000 * 60 * 60 *24 // prune expired entries every 24h
+        }),
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24, // one day
+            secure: true,
+        },
+    })
+);
+
+import './config/passport';
+app.use(passport.initialize());
 
 // routers
 app.use('/', indexRouter);
