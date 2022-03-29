@@ -1,0 +1,13 @@
+<%- include('../header') -%>
+
+    <h2>Login form</h2>
+
+    <form action="/admin/login" method="post">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username">
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password">
+        <button type="submit">Login</button>
+    </form>
+
+<%- include('../footer') -%>

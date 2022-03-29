@@ -28,3 +28,12 @@ export enum MessageType {
     tx = 'TX',
     text = 'TEXT'
 }
+
+declare global {
+    namespace Express {
+        interface User {
+            id: string,
+            isAdmin? : boolean;
+        }
+    }
+}

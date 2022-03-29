@@ -8,6 +8,9 @@ import { getSubscriptions } from '../db';
 import { sendPushMessage } from '../lib/sendPushMessage';
 import { Subscription } from '../types';
 import logger from '../logger';
+import { requireAdmin } from '../middlewares/authMiddlewares';
+import config from '../config';
+const { SITE_TITLE } = config;
 
 const router = Router();
 
@@ -16,23 +19,31 @@ const router = Router();
 // render Not Authorized Message and logout button if not authorized
 // render the send Push Notification Message form if authenticated and authorized
 router.get('/', (req: Request, res: Response, next: NextFunction) => {
-    res.render('admin/index', { user: req.user});
+    if ( !req.isAuthenticated() ) {
+        res.render('admin/login', {title: SITE_TITLE});
+    } else {
+        let error = null;
+        if ( !req.user.isAdmin ) {
+            error = "Admin authorization is required for this resource";
+        }
+        res.render('admin/sendPushMessage', {title: SITE_TITLE, error});
+    }
 })
 
 // login for admin
 router.post('/login', passport.authenticate('local',{
-    successRedirect: '/',
-    failureRedirect: '/'
+    successRedirect: './',
+    failureRedirect: './'
 }))
 
 // logout
 router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
     req.logout();
-    res.redirect('/');
+    res.redirect('./');
 })
 
 // Send Push Message
-router.post('/send', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/send', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
     const { id, payload, type } = req.body;
     // 1. get all subscription objects associated with this key
     // 2. loop thru all the subscriptions and send message for each one of them

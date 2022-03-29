@@ -48,7 +48,7 @@ app.use(
         }),
         cookie: {
             maxAge: 1000 * 60 * 60 * 24, // one day
-            secure: true,
+            secure: process.env.NODE_ENV === 'development' ? false : true
         },
     })
 );
@@ -57,6 +57,11 @@ app.use(
 import './config/passport';
 app.use(passport.initialize());
 app.use(passport.session());
+app.use((req, res, next) => {
+    console.log(req.session);
+    console.log(req.user);
+    next();
+})
 
 // routers
 app.use('/', indexRouter);
