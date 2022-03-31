@@ -4,7 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { getSubscriptions, getSubscriptionsIterator } from '../db';
+import { getSubscriptionsIterator } from '../db';
 import { sendPushMessage } from '../lib/sendPushMessage';
 import { Subscription, Subscriptions } from '../types';
 import logger from '../logger';
@@ -22,11 +22,13 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
     if ( !req.isAuthenticated() ) {
         res.render('admin/login', {title: SITE_TITLE});
     } else {
-        let error = null;
         if ( !req.user.isAdmin ) {
-            error = "Admin authorization is required for this resource";
+            // redirect to the un-authorized page
+            res.render('admin/unauthorized', {title: SITE_TITLE, message: 'Admin authorization is required for this resource'});
+        } else {
+            const error = req.query.error === 'true';
+            res.render('admin/sendPushMessage', {title: SITE_TITLE, error, message: req.query.message});
         }
-        res.render('admin/sendPushMessage', {title: SITE_TITLE, error});
     }
 })
 
@@ -47,6 +49,8 @@ router.post('/broadcast', requireAdmin, async (req: Request, res: Response, next
     const { payload, type } = req.body;
     // 1. get the subscriptions iterator
     // 2. loop thru all the subscriptions and send message for each one of them
+    let error = false;
+    let message = 'successfully broadcasted push mesage';
     try {
         const subsIterator: any = await getSubscriptionsIterator();
         for await ( const [id, subs] of subsIterator ) {
@@ -57,15 +61,19 @@ router.post('/broadcast', requireAdmin, async (req: Request, res: Response, next
                         sendPushMessage( id, sub, msg);
                     } catch (error) {
                         logger.log('error', 'Cannot send PushMessage', error);
+                        error = true;
+                        message = `error sending to address ${id}`;
                     }
                 })
             }
         }
     } catch (error) {
         logger.log('error', 'Cannot iterate the subscriptions', error);
+        error = true;
+        message = 'Error while iterating subscriptions';
     }
 
-    res.status(200).json({success: true});
+    res.redirect(`./?error=${error}&message=${message}`);
 });
 
 export default router;

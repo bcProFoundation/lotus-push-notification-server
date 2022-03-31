@@ -6,6 +6,11 @@
         <h2>Send Push Message</h2>
 
         <form class="push-message-admin" action="/admin/broadcast" method="post">
+            <% if (message) { %>
+                <div class=<%- error ? 'error' : 'success' %>>
+                    <%= message %>
+                </div>
+            <% } %>
             <label for="username">Message:</label>
             <textarea name="payload" id="payload"></textarea>
             <input type="hidden" name="type" value="TEXT">

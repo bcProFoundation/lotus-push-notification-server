@@ -57,11 +57,6 @@ app.use(
 import './config/passport';
 app.use(passport.initialize());
 app.use(passport.session());
-app.use((req, res, next) => {
-    console.log(req.session);
-    console.log(req.user);
-    next();
-})
 
 // routers
 app.use('/', indexRouter);
