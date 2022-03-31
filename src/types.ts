@@ -33,7 +33,8 @@ declare global {
     namespace Express {
         interface User {
             id: string,
-            isAdmin? : boolean;
+            isAdmin?: boolean;
+            isDev?: boolean;
         }
     }
 }

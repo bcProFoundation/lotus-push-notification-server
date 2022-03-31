@@ -1,13 +1,26 @@
 // TODO:
-// protect these routes with password in production environment
+// Implement pagination for getting all subscriptions
 
 import { Router, Request, Response, NextFunction } from 'express';
+import passport from 'passport';
 import { getSubscriptions } from '../db';
 import logger from '../logger';
+import { requireDev } from '../middlewares/authMiddlewares';
 
 const router = Router();
 
-router.get('/subscription/all', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', passport.authenticate('local'), (req, res, next) => {
+    res.status(200).json({success: true});
+});
+
+router.get('/logout',(req: Request, res: Response, next: NextFunction) => {
+    req.logout();
+    res.status(200).json({
+        success: true
+    })
+})
+
+router.get('/subscription/all', requireDev, async (req: Request, res: Response, next: NextFunction) => {
     try {
         // return all the subscription data in the database
     } catch (error: any) {
@@ -20,7 +33,7 @@ router.get('/subscription/all', async (req: Request, res: Response, next: NextFu
 });
 
 // get the subscriptions for a single id
-router.get('/subscription/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/subscription/:id', requireDev, async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
         const data = await getSubscriptions(id);
