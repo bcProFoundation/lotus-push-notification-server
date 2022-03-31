@@ -1,0 +1,17 @@
+<%- include('../header') -%>
+<main>
+    <h1 class='title'><%= title %></h1>
+
+    <div class="login-form">
+        <h2>Admin Login</h2>
+        <form class="login-admin" action="/admin/login" method="post">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password">
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</main>
+
+<%- include('../footer') -%>

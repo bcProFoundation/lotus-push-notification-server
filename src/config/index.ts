@@ -9,5 +9,9 @@ export default {
     LOTUSD_ZMQ_URL: process.env.LOTUSD_ZMQ_URL || '',
     DEBUG: process.env.DEBUG === 'true' ? true : false,
     LOGGING_DIR: process.env.LOGGING_DIR || "./logs",
-    MAX_SUBS: 5
+    MAX_SUBS: 5,
+    SESSION_SECRET: process.env.SESSION_SECRET || '',
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL || '',
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
+    SITE_TITLE: 'Lotus Push Notification Server'
 }

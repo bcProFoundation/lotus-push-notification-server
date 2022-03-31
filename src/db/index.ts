@@ -4,9 +4,6 @@ import config from '../config';
 import { Subscription, Subscriptions } from 'src/types';
 
 const { DB_PATH } = config;
-// const db = sublevel(levelup(encoding(leveldown(DB_PATH), {valueEncoding: 'json'})));
-// const subDB = db.sublevel('subscriptions');
-// const logDB = db.sublevel('logs');
 const db = level(DB_PATH, {createIfMissing: true});
 const subDB = subleveldown(db, 'subscriptions', { valueEncoding: 'json'});
 const logDB = subleveldown(db, 'logs', { valueEncoding: 'json'});
@@ -110,15 +107,10 @@ const deleteSubscription = async (id: string, clientAppId: string) => {
     return deletedSub;
 }
 
-// get all the content of the database
-const getAllSubscriptionData = async () => {
-    let data: Subscriptions[] = [];
-    // let iterator = await subDB.iterator({keyAsBuffer:false, valueAsBuffer: false});
-    // // while ( iterator.next() )
-    // for await (const [key, value] of iterator) {
-    //     data.push({[key]: value})    
-    // }
-    return data;
+// return an Iterator for all the subscriptions in the database
+// this Iterator then can be used to loop through all the subscriptions
+const getSubscriptionsIterator = async () => {
+    return await subDB.iterator();
 }
 
-export { getSubscriptions, getSubscription, saveSubscription, deleteSubscription, deleteSubscriptions, getAllSubscriptionData }
+export { getSubscriptions, getSubscription, saveSubscription, deleteSubscription, deleteSubscriptions, getSubscriptionsIterator }
