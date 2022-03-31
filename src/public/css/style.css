@@ -5,6 +5,15 @@
 body {
     height: 100%;
     font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+}
+
+h1 {
+    font-weight: 700;
+}
+
+h2 {
+    font-weight: 400;
 }
 
 .title {
@@ -27,10 +36,10 @@ main {
     text-align: center;
 }
 
-.login-admin {
-    border: 1px solid lightgray;
+.login-admin, .push-message-admin {
+    border: 1px solid #e2e2e2;
     border-radius: 5px;
-    padding: 20px;
+    padding: 30px;
     max-width: 300px;
     margin: auto;
     display: flex;
@@ -40,7 +49,7 @@ main {
     text-align: center;
 }
 
-.login-admin input {
+.login-admin input, .push-message-admin textarea {
     width: 100%;
     border: 1px solid lightgray;
     border-radius: 3px;
@@ -48,12 +57,37 @@ main {
     padding: 8px 10px;
 }
 
-.login-admin input:focus {
+.push-message-admin textarea {
+    height: 150px;
+}
+
+.login-admin input:focus, .push-message-admin textarea:focus {
     outline: none !important;
     border-color: #bb98ff;
 }
 
-.login-admin button {
+.push-message-admin .cta {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+a.btn {
+    text-decoration: none;
+    cursor: pointer;
+    align-self: flex-end;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 20px;
+    line-height: 1;
+}
+
+.btn-secondary {
+    background: #adaeae;
+    color: white;
+}
+
+.login-admin button, .push-message-admin button {
     cursor: pointer;
     align-self: flex-end;
     border: none;
@@ -61,4 +95,5 @@ main {
     padding: 8px 20px;
     background: #6f2dbd;
     color: white;
+    line-height: 1;
 }

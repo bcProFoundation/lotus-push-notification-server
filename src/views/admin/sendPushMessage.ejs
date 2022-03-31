@@ -1,5 +1,20 @@
 <%- include('../header') -%>
+<main>
+    <h1 class='title'><%= title %></h1>
 
-    <h2>Send Push Message Form</h2>
+    <div class="push-message-form">
+        <h2>Send Push Message</h2>
+
+        <form class="push-message-admin" action="/admin/broadcast" method="post">
+            <label for="username">Message:</label>
+            <textarea name="payload" id="payload"></textarea>
+            <input type="hidden" name="type" value="TEXT">
+            <div class="cta">
+                <a class="btn btn-secondary" href="./logout">Logout</a>
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+</main>
 
 <%- include('../footer') -%>

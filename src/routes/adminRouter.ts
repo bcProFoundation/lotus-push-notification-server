@@ -4,9 +4,9 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { getSubscriptions } from '../db';
+import { getSubscriptions, getSubscriptionsIterator } from '../db';
 import { sendPushMessage } from '../lib/sendPushMessage';
-import { Subscription } from '../types';
+import { Subscription, Subscriptions } from '../types';
 import logger from '../logger';
 import { requireAdmin } from '../middlewares/authMiddlewares';
 import config from '../config';
@@ -43,20 +43,26 @@ router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
 })
 
 // Send Push Message
-router.post('/send', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
-    const { id, payload, type } = req.body;
-    // 1. get all subscription objects associated with this key
+router.post('/broadcast', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+    const { payload, type } = req.body;
+    // 1. get the subscriptions iterator
     // 2. loop thru all the subscriptions and send message for each one of them
-    const subs = await getSubscriptions(id);
-    if ( subs && subs.list.length > 0 ) {
-        const msg = { type, payload }
-        subs.list.forEach((sub: Subscription )=> {
-            try {
-                sendPushMessage(id, sub, msg)
-            } catch (error) {
-                logger.log('error', 'Cannot send PushMessage', error);
+    try {
+        const subsIterator: any = await getSubscriptionsIterator();
+        for await ( const [id, subs] of subsIterator ) {
+            if (subs && subs.list.length > 0) {
+                const msg = { type, payload};
+                subs.list.forEach((sub: Subscription) => {
+                    try {
+                        sendPushMessage( id, sub, msg);
+                    } catch (error) {
+                        logger.log('error', 'Cannot send PushMessage', error);
+                    }
+                })
             }
-        });
+        }
+    } catch (error) {
+        logger.log('error', 'Cannot iterate the subscriptions', error);
     }
 
     res.status(200).json({success: true});
