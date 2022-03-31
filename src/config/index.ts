@@ -13,5 +13,7 @@ export default {
     SESSION_SECRET: process.env.SESSION_SECRET || '',
     ADMIN_EMAIL: process.env.ADMIN_EMAIL || '',
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
+    DEV_EMAIL: process.env.DEV_EMAIL || '',
+    DEV_PASSWORD: process.env.DEV_PASSWORD || '',
     SITE_TITLE: 'Lotus Push Notification Server'
 }

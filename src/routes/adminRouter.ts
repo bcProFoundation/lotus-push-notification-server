@@ -1,6 +1,5 @@
 // TODO:
-// 1. protect these routes with password in production environment
-// 2. throw error if message type in not one of "TX" or "TEXT"
+// 1. throw error if message type in not one of "TX" or "TEXT"
 
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
@@ -24,7 +23,7 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
     } else {
         if ( !req.user.isAdmin ) {
             // redirect to the un-authorized page
-            res.render('admin/unauthorized', {title: SITE_TITLE, message: 'Admin authorization is required for this resource'});
+            res.render('unauthorized', {title: SITE_TITLE, message: 'Admin authorization is required for this resource'});
         } else {
             const error = req.query.error === 'true';
             res.render('admin/sendPushMessage', {title: SITE_TITLE, error, message: req.query.message});

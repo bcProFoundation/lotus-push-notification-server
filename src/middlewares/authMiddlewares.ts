@@ -9,3 +9,11 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
         res.render('unauthorized', {title: SITE_TITLE, message: 'Admin level authorization is required to access this resource'});
     }
 }
+
+export const requireDev = (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated() && req.user.isDev) {
+        next();
+    } else {
+        res.render('unauthorized', {title: SITE_TITLE, message: 'Dev level authorization is required to access this resource'});
+    }
+}
