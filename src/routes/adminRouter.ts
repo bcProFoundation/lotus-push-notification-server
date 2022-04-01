@@ -11,6 +11,7 @@ import { requireAdmin } from '../middlewares/authMiddlewares';
 import config from '../config';
 const { SITE_TITLE } = config;
 
+const TTL = 1209600; // keep the message on the Push Service for 2 weeks
 const router = Router();
 
 // Admin Home route
@@ -57,7 +58,7 @@ router.post('/broadcast', requireAdmin, async (req: Request, res: Response, next
                 const msg = { type, payload};
                 subs.list.forEach((sub: Subscription) => {
                     try {
-                        sendPushMessage( id, sub, msg);
+                        sendPushMessage( id, sub, msg, { TTL });
                     } catch (error) {
                         logger.log('error', 'Cannot send PushMessage', error);
                         error = true;
