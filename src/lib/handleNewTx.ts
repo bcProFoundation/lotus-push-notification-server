@@ -9,6 +9,7 @@ import { MessageType, Subscription, Subscriptions } from '../types';
 import { sendPushMessage } from './sendPushMessage';
 import logger from '../logger';
 
+const TTL = 86400; // keep the msg on Push Service for 1 day (in seconds)
 const OP_RETURN = '6a';
 const sentTX: any = {};
 const chronik = new ChronikClient("https://chronik.be.cash/xpi");
@@ -75,8 +76,9 @@ const handleNewTx = async (txHashBuf: Buffer) => {
                             try {
                                 const msg = {
                                     clientAppId: sub.clientAppId,
-                                    type: MessageType.tx, 
+                                    type: MessageType.tx,
                                     payload: {
+                                        txHash,
                                         amount: value.toNumber(),
                                         toAddress: outputAddress,
                                         // a null fromAddress indicates this is a coinbase tx
@@ -84,7 +86,7 @@ const handleNewTx = async (txHashBuf: Buffer) => {
                                         opReturnOutput,
                                     }
                                 }
-                                sendPushMessage(outputAddress,sub,msg);
+                                sendPushMessage(outputAddress, sub , msg, { TTL });
                             } catch (error) {
                                 logger.log('error', 'Error in onNewTx()', error);
                             }
