@@ -76,8 +76,9 @@ const handleNewTx = async (txHashBuf: Buffer) => {
                             try {
                                 const msg = {
                                     clientAppId: sub.clientAppId,
-                                    type: MessageType.tx, 
+                                    type: MessageType.tx,
                                     payload: {
+                                        txHash,
                                         amount: value.toNumber(),
                                         toAddress: outputAddress,
                                         // a null fromAddress indicates this is a coinbase tx
