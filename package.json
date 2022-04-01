@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "dev": "nodemon ./src/index.ts",
-    "build": "rm -rf ./dist && tsc && cp -rf ./src/public ./dist"
+    "build": "rm -rf ./dist && tsc && cp -rf ./src/views ./dist && cp -rf ./src/public ./dist"
   },
   "author": "bcPros Foundation",
   "license": "MIT",
