@@ -36,22 +36,25 @@ app.set('views', path.join(__dirname,'views'));
 
 // configure session
 // https://github.com/expressjs/session#readme
-app.use(
-    session({
-        name: 'sessionId',
-        secret: SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
-        // https://github.com/roccomuso/memorystore#readme
-        store: new MemoryStore({
-            checkPeriod: 1000 * 60 * 60 *24 // prune expired entries every 24h
-        }),
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 24, // one day
-            secure: process.env.NODE_ENV === 'development' ? false : true
-        },
-    })
-);
+const sess = {
+    name: 'sessionId',
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    // https://github.com/roccomuso/memorystore#readme
+    store: new MemoryStore({
+        checkPeriod: 1000 * 60 * 60 *24 // prune expired entries every 24h
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // one day
+        secure: false,
+    },
+}
+if (process.env.NODE_ENV !== 'development') {
+    app.set('trust proxy', 1);
+    sess.cookie.secure = true;
+}
+app.use(session(sess));
 
 // configure passport for user authentication
 import './config/passport';
