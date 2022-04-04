@@ -49,16 +49,23 @@ router.post('/broadcast', requireAdmin, async (req: Request, res: Response, next
     const { payload, type } = req.body;
     // 1. get the subscriptions iterator
     // 2. loop thru all the subscriptions and send message for each one of them
+    //      2.1 if the msg has been sent to the appId, skip sending
+    //      2.2 add the appId to "Sent" so that the msg wont be sent to the same appId again
     let error = false;
     let message = 'successfully broadcasted push mesage';
+    const sent: any = {};
     try {
         const subsIterator: any = await getSubscriptionsIterator();
         for await ( const [id, subs] of subsIterator ) {
             if (subs && subs.list.length > 0) {
                 const msg = { to: id, isBroadcast: true, type, payload};
                 subs.list.forEach((sub: Subscription) => {
+                    const { clientAppId } = sub;
                     try {
-                        sendPushMessage( id, sub, msg, { TTL });
+                        if (!sent.hasOwnProperty(clientAppId)) {
+                            sendPushMessage( id, sub, msg, { TTL });
+                            sent[clientAppId] = true;
+                        }
                     } catch (error) {
                         logger.log('error', 'Cannot send PushMessage', error);
                         error = true;
