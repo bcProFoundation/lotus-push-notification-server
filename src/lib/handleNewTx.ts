@@ -8,11 +8,12 @@ import { getSubscriptions } from '../db';
 import { MessageType, Subscription, Subscriptions } from '../types';
 import { sendPushMessage } from './sendPushMessage';
 import logger from '../logger';
+import config from '../config';
 
 const TTL = 86400; // keep the msg on Push Service for 1 day (in seconds)
 const OP_RETURN = '6a';
 const sentTX: any = {};
-const chronik = new ChronikClient("https://chronik.be.cash/xpi");
+const chronik = new ChronikClient(config.CHRONIK_URL);
 
 const handleNewTx = async (txHashBuf: Buffer) => {
     const txHash: string = txHashBuf.toString('hex');

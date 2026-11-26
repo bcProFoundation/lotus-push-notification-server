@@ -7,6 +7,7 @@ export default {
     VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY || '',
     VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || '',
     LOTUSD_ZMQ_URL: process.env.LOTUSD_ZMQ_URL || '',
+    CHRONIK_URL: process.env.CHRONIK_URL || 'https://chronik.givelotus.org/xpi',
     DEBUG: process.env.DEBUG === 'true' ? true : false,
     LOGGING_DIR: process.env.LOGGING_DIR || "./logs",
     MAX_SUBS: 5,
